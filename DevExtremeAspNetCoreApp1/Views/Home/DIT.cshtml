@@ -1,0 +1,48 @@
+@using DevExpress.AspNetCore
+@using DevExtremeAspNetCoreApp1.Models
+@using DevExtremeAspNetCoreApp1.Utilities
+@inject IWebHostEnvironment env
+
+@* <script src="~/node_modules/devextreme-dist/js/dx.all.js"></script>
+<link href="~/node_modules/devextreme-dist/css/dx.light.css" rel="stylesheet" />
+ *@
+<script src="~/node_modules/devexpress-aspnetcore-spreadsheet/dist/dx-aspnetcore-spreadsheet.js"></script>
+<link href="~/node_modules/devexpress-aspnetcore-spreadsheet/dist/dx-aspnetcore-spreadsheet.css" rel="stylesheet" />
+
+<h2>DIT</h2>
+
+<div class="button-container">
+    <div id="button-save"></div>
+</div>
+<script type="text/javascript">
+    $("#button-save").dxButton({
+        icon: "save",
+        type: "normal",
+        text: "Save copy to file",
+        onClick: function (e) {
+            var spreadsheetState = spreadsheet.getSpreadsheetState();
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("SaveToFile")',
+                data: { spreadsheetState: spreadsheetState}
+            });
+        }
+    });
+</script>
+
+@{
+    var documentPath = System.IO.Path.Combine(
+      env.ContentRootPath,
+      DirectoryManagmentUtils.GetDocumentSampleFolderPath(Context), "DIT.xlsm");
+
+    documentPath = documentPath;
+}
+
+@(Html.DevExpress()
+    .Spreadsheet("spreadsheet")
+    .Height("700px")
+    .Width("100%")
+    .ConfirmOnLosingChanges(confirm => confirm.Enabled(false))
+    .DocumentRequestHandlerUrl(Url.Action("DxDocumentRequest"))
+    .Open(documentPath)
+)
